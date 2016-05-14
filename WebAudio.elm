@@ -18,19 +18,14 @@ model = []
 type Msg
   = PlaySound
   | SoundData (List Int)
-  | Done
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     PlaySound ->
-      ( model, Debug.log "play sound" (playSoundOut "some message" ))
+      ( model, (playSoundOut "" ))
     SoundData data ->
-      let newModel = model++data
-          -- _        = Debug.log "model" (List.length newModel)
-      in (model++data, Cmd.none)
-    Done ->
-      (model, Cmd.none)
+      (model++data, Cmd.none)
 
 -- VIEW
 view : Model -> Html Msg
@@ -44,46 +39,34 @@ playButton =
   Html.button
     [ onClick PlaySound ] [ text "Play" ]
 
+graphWidth = 500
+graphHeight = 500
+halfGraphWidth = graphWidth / 2
+
 graph : Model -> Element
 graph model =
   let points = List.length model
       moveLeft =
         if
-          points < 500
+          points < graphWidth
         then
           0
         else
-          500 - points
-      -- _ = Debug.log "left" moveLeft
-  in collage 500 500
+          graphWidth - points
+  in collage graphWidth graphHeight
     [ group (List.indexedMap point model)
         |> move (toFloat moveLeft, 0)
     ]
 
-{-
-#    move left
-0 -> 0
-250 -> 0
-500 -> 0
-
-501 -> -1
-502 -> -2
--}
-
-
 point x y =
-    -- let _ = Debug.log "x,y" (x,y)
     circle 1
       |> outlined (solid blue)
-      |> move (toFloat (x - 250), toFloat (y-100))
+      |> move (((toFloat x) - halfGraphWidth), toFloat (y-100))
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.batch
-  [ (Ports.done (\_ -> Done))
-  , Ports.soundData SoundData
-  ]
+  Ports.soundData SoundData
 
 -- MAIN
 

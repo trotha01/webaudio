@@ -19,7 +19,8 @@ var playFrequency = function(frequency, gainVal) {
 
   // create analyser
   var analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 2048;
+  // analyser.fftSize = 2048;
+  analyser.fftSize = 1024;
 
   // connect analyser
   gain.connect(analyser);

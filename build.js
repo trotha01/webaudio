@@ -9549,15 +9549,17 @@ var _user$project$Ports$logExternalOut = _elm_lang$core$Native_Platform.outgoing
 	function (v) {
 		return v;
 	});
-var _user$project$Ports$done = _elm_lang$core$Native_Platform.incomingPort('done', _elm_lang$core$Json_Decode$bool);
 
+var _user$project$WebAudio$graphHeight = 500;
+var _user$project$WebAudio$graphWidth = 500;
+var _user$project$WebAudio$halfGraphWidth = _user$project$WebAudio$graphWidth / 2;
 var _user$project$WebAudio$point = F2(
 	function (x, y) {
 		return A2(
 			_evancz$elm_graphics$Collage$move,
 			{
 				ctor: '_Tuple2',
-				_0: _elm_lang$core$Basics$toFloat(x - 250),
+				_0: _elm_lang$core$Basics$toFloat(x) - _user$project$WebAudio$halfGraphWidth,
 				_1: _elm_lang$core$Basics$toFloat(y - 100)
 			},
 			A2(
@@ -9567,11 +9569,11 @@ var _user$project$WebAudio$point = F2(
 	});
 var _user$project$WebAudio$graph = function (model) {
 	var points = _elm_lang$core$List$length(model);
-	var moveLeft = (_elm_lang$core$Native_Utils.cmp(points, 500) < 0) ? 0 : (500 - points);
+	var moveLeft = (_elm_lang$core$Native_Utils.cmp(points, _user$project$WebAudio$graphWidth) < 0) ? 0 : (_user$project$WebAudio$graphWidth - points);
 	return A3(
 		_evancz$elm_graphics$Collage$collage,
-		500,
-		500,
+		_user$project$WebAudio$graphWidth,
+		_user$project$WebAudio$graphHeight,
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
@@ -9588,44 +9590,27 @@ var _user$project$WebAudio$graph = function (model) {
 var _user$project$WebAudio$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'PlaySound':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: A2(
-						_elm_lang$core$Debug$log,
-						'play sound',
-						_user$project$Ports$playSoundOut('some message'))
-				};
-			case 'SoundData':
-				var _p1 = _p0._0;
-				var newModel = A2(_elm_lang$core$Basics_ops['++'], model, _p1);
-				return {
-					ctor: '_Tuple2',
-					_0: A2(_elm_lang$core$Basics_ops['++'], model, _p1),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			default:
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		if (_p0.ctor === 'PlaySound') {
+			return {
+				ctor: '_Tuple2',
+				_0: model,
+				_1: _user$project$Ports$playSoundOut('')
+			};
+		} else {
+			return {
+				ctor: '_Tuple2',
+				_0: A2(_elm_lang$core$Basics_ops['++'], model, _p0._0),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
 		}
 	});
 var _user$project$WebAudio$model = _elm_lang$core$Native_List.fromArray(
 	[]);
-var _user$project$WebAudio$Done = {ctor: 'Done'};
 var _user$project$WebAudio$SoundData = function (a) {
 	return {ctor: 'SoundData', _0: a};
 };
 var _user$project$WebAudio$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_user$project$Ports$done(
-				function (_p2) {
-					return _user$project$WebAudio$Done;
-				}),
-				_user$project$Ports$soundData(_user$project$WebAudio$SoundData)
-			]));
+	return _user$project$Ports$soundData(_user$project$WebAudio$SoundData);
 };
 var _user$project$WebAudio$PlaySound = {ctor: 'PlaySound'};
 var _user$project$WebAudio$playButton = A2(
