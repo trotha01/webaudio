@@ -3,7 +3,7 @@ module WebAudio exposing (..)
 import Html exposing (Html, text)
 import Html.Events exposing (onClick)
 import Html.App
-import Ports exposing (playSoundOut)
+import Ports exposing (playSoundOut, logExternalOut)
 
 -- MODEL
 type alias Model = Int
@@ -14,11 +14,19 @@ model = 0
 -- UPDATE
 type Msg
   = PlaySound
+  | SoundData (List Int)
   | Done
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  ( model, Debug.log "play sound" (playSoundOut "" ))
+  case msg of
+    PlaySound ->
+      ( model, Debug.log "play sound" (playSoundOut "some message" ))
+    SoundData data ->
+      let _ = Debug.log "sound data" data
+      in (model, Cmd.none)
+    Done ->
+      (model, Cmd.none)
 
 -- VIEW
 view : Model -> Html Msg
@@ -29,7 +37,10 @@ view model =
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Ports.done (\_ -> Done)
+  Sub.batch
+  [ (Ports.done (\_ -> Done))
+  , Ports.soundData SoundData
+  ]
 
 -- MAIN
 

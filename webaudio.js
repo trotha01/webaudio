@@ -4,16 +4,56 @@ app.ports.logExternalOut.subscribe(function(value) {
   console.info("logs:", value);
 });
 
-app.ports.playSoundOut.subscribe(function(unused) {
-  console.info("HERE");
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+var playFrequency = function(frequency, gainVal) {
+  // create oscillator
   var oscillator = audioCtx.createOscillator();
+  oscillator.connect(audioCtx.destination);
 
-  oscillator.type = 'square';
-  oscillator.frequency.value = 3000; // value in hertz
+  // create gain
+  var gain = audioCtx.createGain();
+  gain.value = gainVal
+  gain.connect(audioCtx.destination);
+  oscillator.connect(gain);
+
+  // create analyser
+  var analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 2048;
+
+  // connect analyser
+  gain.connect(analyser);
+
+  // play sound
+  // oscillator.type = 'square';
+  oscillator.frequency.value = frequency; // value in hertz
   oscillator.start();
-  oscillator.stop(1);
+  oscillator.stop(audioCtx.currentTime + 1);
+  console.log("here")
 
-  app.ports.done.send(true);
+  // send sound data
+  var soundDataStream = window.setInterval(function() {
+
+    var bufferLength = analyser.frequencyBinCount;
+    var dataArray = new Uint8Array(bufferLength);
+    analyser.getByteTimeDomainData(dataArray);
+
+    // console.log(dataArray);
+    // app.ports.soundData.send(dataArray);
+
+  }, 500);
+
+  window.setTimeout(function() {
+    window.clearInterval(soundDataStream);
+  }, 1000);
+}
+
+app.ports.playSoundOut.subscribe(function(unused) {
+  playFrequency(440, 1);
+
+//   playFrequency(880, 0.5);
+//   playFrequency(1760, 0.25);
+//   playFrequency(3520, 0.125);
+
 });
 
