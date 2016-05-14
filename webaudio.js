@@ -40,8 +40,9 @@ var playFrequency = function(frequency, gainVal) {
     // we convert since Uint8Array is actually an object
     var array = [].slice.call(dataArray)
     app.ports.soundData.send(array);
+    console.log("sent");
 
-  }, 500);
+  }, 10);
 
   window.setTimeout(function() {
     window.clearInterval(soundDataStream);
