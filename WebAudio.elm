@@ -6,10 +6,10 @@ import Html.App
 import Ports exposing (playSoundOut, logExternalOut)
 
 -- MODEL
-type alias Model = Int
+type alias Model = List Int
 
 model : Model
-model = 0
+model = []
 
 -- UPDATE
 type Msg
@@ -24,7 +24,7 @@ update msg model =
       ( model, Debug.log "play sound" (playSoundOut "some message" ))
     SoundData data ->
       let _ = Debug.log "sound data" data
-      in (model, Cmd.none)
+      in (model++data, Cmd.none)
     Done ->
       (model, Cmd.none)
 

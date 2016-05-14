@@ -6869,13 +6869,19 @@ var _user$project$WebAudio$update = F2(
 						_user$project$Ports$playSoundOut('some message'))
 				};
 			case 'SoundData':
-				var _p1 = A2(_elm_lang$core$Debug$log, 'sound data', _p0._0);
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p2 = _p0._0;
+				var _p1 = A2(_elm_lang$core$Debug$log, 'sound data', _p2);
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_elm_lang$core$Basics_ops['++'], model, _p2),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			default:
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
-var _user$project$WebAudio$model = 0;
+var _user$project$WebAudio$model = _elm_lang$core$Native_List.fromArray(
+	[]);
 var _user$project$WebAudio$Done = {ctor: 'Done'};
 var _user$project$WebAudio$SoundData = function (a) {
 	return {ctor: 'SoundData', _0: a};
@@ -6885,7 +6891,7 @@ var _user$project$WebAudio$subscriptions = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_user$project$Ports$done(
-				function (_p2) {
+				function (_p3) {
 					return _user$project$WebAudio$Done;
 				}),
 				_user$project$Ports$soundData(_user$project$WebAudio$SoundData)

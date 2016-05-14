@@ -29,7 +29,6 @@ var playFrequency = function(frequency, gainVal) {
   oscillator.frequency.value = frequency; // value in hertz
   oscillator.start();
   oscillator.stop(audioCtx.currentTime + 1);
-  console.log("here")
 
   // send sound data
   var soundDataStream = window.setInterval(function() {
@@ -38,8 +37,9 @@ var playFrequency = function(frequency, gainVal) {
     var dataArray = new Uint8Array(bufferLength);
     analyser.getByteTimeDomainData(dataArray);
 
-    // console.log(dataArray);
-    // app.ports.soundData.send(dataArray);
+    // we convert since Uint8Array is actually an object
+    var array = [].slice.call(dataArray)
+    app.ports.soundData.send(array);
 
   }, 500);
 
