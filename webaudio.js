@@ -1,4 +1,4 @@
-var app = Elm.WebAudio.fullscreen();
+var app = Elm.Visualizer.fullscreen();
 
 app.ports.logExternalOut.subscribe(function(value) {
   console.info("logs:", value);
@@ -6,10 +6,7 @@ app.ports.logExternalOut.subscribe(function(value) {
 
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-var playFrequency = function(frequency, gainVal) {
-  // create oscillator
-  var oscillator = audioCtx.createOscillator();
-  oscillator.connect(audioCtx.destination);
+var playFrequency = function(oscillator, gainVal) {
 
   // create gain
   var gain = audioCtx.createGain();
@@ -25,9 +22,6 @@ var playFrequency = function(frequency, gainVal) {
   // connect analyser
   gain.connect(analyser);
 
-  // play sound
-  // oscillator.type = 'square';
-  oscillator.frequency.value = frequency; // value in hertz
   oscillator.start();
   oscillator.stop(audioCtx.currentTime + 1);
 
@@ -50,12 +44,17 @@ var playFrequency = function(frequency, gainVal) {
   }, 1000);
 }
 
-app.ports.playSoundOut.subscribe(function(unused) {
-  playFrequency(440, 1);
+app.ports.playOscillator.subscribe(function(settings) {
+  // create oscillator
+  var oscillator = audioCtx.createOscillator();
+  oscillator.connect(audioCtx.destination);
 
-//   playFrequency(880, 0.5);
-//   playFrequency(1760, 0.25);
-//   playFrequency(3520, 0.125);
+  // play sound
+  oscillator.type = settings.shape;
+  oscillator.frequency.value = settings.frequency; // value in hertz
+  oscillator.detune.value = settings.detune;
 
+  console.log("here");
+  playFrequency(oscillator, 1);
 });
 

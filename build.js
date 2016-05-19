@@ -9536,30 +9536,47 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				_elm_lang$core$Native_List.range(0, m - 1)));
 	});
 
-var _user$project$Ports$playSoundOut = _elm_lang$core$Native_Platform.outgoingPort(
-	'playSoundOut',
+var _user$project$WebAudio$playOscillator = _elm_lang$core$Native_Platform.outgoingPort(
+	'playOscillator',
 	function (v) {
-		return v;
+		return {frequency: v.frequency, detune: v.detune, shape: v.shape};
 	});
-var _user$project$Ports$soundData = _elm_lang$core$Native_Platform.incomingPort(
+var _user$project$WebAudio$play = function (oscillator) {
+	return _user$project$WebAudio$playOscillator(oscillator.settings);
+};
+var _user$project$WebAudio$soundData = _elm_lang$core$Native_Platform.incomingPort(
 	'soundData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int));
-var _user$project$Ports$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$project$WebAudio$newOscillator = function (frequency) {
+	return {
+		settings: {frequency: frequency, detune: 0, shape: 'sine'},
+		soundData: _user$project$WebAudio$soundData
+	};
+};
+var _user$project$WebAudio$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
 	'logExternalOut',
 	function (v) {
 		return v;
 	});
+var _user$project$WebAudio$OscillatorNode = F2(
+	function (a, b) {
+		return {settings: a, soundData: b};
+	});
+var _user$project$WebAudio$OscillatorSettings = F3(
+	function (a, b, c) {
+		return {frequency: a, detune: b, shape: c};
+	});
 
-var _user$project$WebAudio$graphHeight = 500;
-var _user$project$WebAudio$graphWidth = 500;
-var _user$project$WebAudio$halfGraphWidth = _user$project$WebAudio$graphWidth / 2;
-var _user$project$WebAudio$point = F2(
+var _user$project$Visualizer$graphHeight = 500;
+var _user$project$Visualizer$graphWidth = 500;
+var _user$project$Visualizer$halfGraphWidth = _user$project$Visualizer$graphWidth / 2;
+var _user$project$Visualizer$point = F2(
 	function (x, y) {
 		return A2(
 			_evancz$elm_graphics$Collage$move,
 			{
 				ctor: '_Tuple2',
-				_0: _elm_lang$core$Basics$toFloat(x) - _user$project$WebAudio$halfGraphWidth,
+				_0: _elm_lang$core$Basics$toFloat(x) - _user$project$Visualizer$halfGraphWidth,
 				_1: _elm_lang$core$Basics$toFloat(y - 100)
 			},
 			A2(
@@ -9567,13 +9584,13 @@ var _user$project$WebAudio$point = F2(
 				_evancz$elm_graphics$Collage$solid(_elm_lang$core$Color$blue),
 				_evancz$elm_graphics$Collage$circle(1)));
 	});
-var _user$project$WebAudio$graph = function (model) {
+var _user$project$Visualizer$graph = function (model) {
 	var points = _elm_lang$core$List$length(model);
-	var moveLeft = (_elm_lang$core$Native_Utils.cmp(points, _user$project$WebAudio$graphWidth) < 0) ? 0 : (_user$project$WebAudio$graphWidth - points);
+	var moveLeft = (_elm_lang$core$Native_Utils.cmp(points, _user$project$Visualizer$graphWidth) < 0) ? 0 : (_user$project$Visualizer$graphWidth - points);
 	return A3(
 		_evancz$elm_graphics$Collage$collage,
-		_user$project$WebAudio$graphWidth,
-		_user$project$WebAudio$graphHeight,
+		_user$project$Visualizer$graphWidth,
+		_user$project$Visualizer$graphHeight,
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
@@ -9584,70 +9601,89 @@ var _user$project$WebAudio$graph = function (model) {
 					_1: 0
 				},
 				_evancz$elm_graphics$Collage$group(
-					A2(_elm_lang$core$List$indexedMap, _user$project$WebAudio$point, model)))
+					A2(_elm_lang$core$List$indexedMap, _user$project$Visualizer$point, model)))
 			]));
 };
-var _user$project$WebAudio$update = F2(
+var _user$project$Visualizer$update = F2(
 	function (msg, model) {
+		var oscillator = _user$project$WebAudio$newOscillator(440);
 		var _p0 = msg;
 		if (_p0.ctor === 'PlaySound') {
 			return {
 				ctor: '_Tuple2',
 				_0: model,
-				_1: _user$project$Ports$playSoundOut('')
+				_1: _user$project$WebAudio$play(oscillator)
 			};
 		} else {
 			return {
 				ctor: '_Tuple2',
-				_0: A2(_elm_lang$core$Basics_ops['++'], model, _p0._0),
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						soundData: A2(_elm_lang$core$Basics_ops['++'], model.soundData, _p0._0)
+					}),
 				_1: _elm_lang$core$Platform_Cmd$none
 			};
 		}
 	});
-var _user$project$WebAudio$model = _elm_lang$core$Native_List.fromArray(
-	[]);
-var _user$project$WebAudio$SoundData = function (a) {
+var _user$project$Visualizer$model = {
+	oscillators: _elm_lang$core$Native_List.fromArray(
+		[]),
+	soundData: _elm_lang$core$Native_List.fromArray(
+		[])
+};
+var _user$project$Visualizer$Model = F2(
+	function (a, b) {
+		return {oscillators: a, soundData: b};
+	});
+var _user$project$Visualizer$SoundData = function (a) {
 	return {ctor: 'SoundData', _0: a};
 };
-var _user$project$WebAudio$subscriptions = function (model) {
-	return _user$project$Ports$soundData(_user$project$WebAudio$SoundData);
+var _user$project$Visualizer$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		A2(
+			_elm_lang$core$List$map,
+			function (o) {
+				return o.soundData(_user$project$Visualizer$SoundData);
+			},
+			model.oscillators));
 };
-var _user$project$WebAudio$PlaySound = {ctor: 'PlaySound'};
-var _user$project$WebAudio$playButton = A2(
+var _user$project$Visualizer$PlaySound = {ctor: 'PlaySound'};
+var _user$project$Visualizer$playButton = A2(
 	_elm_lang$html$Html$button,
 	_elm_lang$core$Native_List.fromArray(
 		[
-			_elm_lang$html$Html_Events$onClick(_user$project$WebAudio$PlaySound)
+			_elm_lang$html$Html_Events$onClick(_user$project$Visualizer$PlaySound)
 		]),
 	_elm_lang$core$Native_List.fromArray(
 		[
 			_elm_lang$html$Html$text('Play')
 		]));
-var _user$project$WebAudio$view = function (model) {
+var _user$project$Visualizer$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
 			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_user$project$WebAudio$playButton,
+				_user$project$Visualizer$playButton,
 				_evancz$elm_graphics$Element$toHtml(
-				_user$project$WebAudio$graph(model))
+				_user$project$Visualizer$graph(model.soundData))
 			]));
 };
-var _user$project$WebAudio$main = {
+var _user$project$Visualizer$main = {
 	main: _elm_lang$html$Html_App$program(
 		{
-			init: {ctor: '_Tuple2', _0: _user$project$WebAudio$model, _1: _elm_lang$core$Platform_Cmd$none},
-			update: _user$project$WebAudio$update,
-			view: _user$project$WebAudio$view,
-			subscriptions: _user$project$WebAudio$subscriptions
+			init: {ctor: '_Tuple2', _0: _user$project$Visualizer$model, _1: _elm_lang$core$Platform_Cmd$none},
+			update: _user$project$Visualizer$update,
+			view: _user$project$Visualizer$view,
+			subscriptions: _user$project$Visualizer$subscriptions
 		})
 };
 
 var Elm = {};
-Elm['WebAudio'] = Elm['WebAudio'] || {};
-_elm_lang$core$Native_Platform.addPublicModule(Elm['WebAudio'], 'WebAudio', typeof _user$project$WebAudio$main === 'undefined' ? null : _user$project$WebAudio$main);
+Elm['Visualizer'] = Elm['Visualizer'] || {};
+_elm_lang$core$Native_Platform.addPublicModule(Elm['Visualizer'], 'Visualizer', typeof _user$project$Visualizer$main === 'undefined' ? null : _user$project$Visualizer$main);
 
 if (typeof define === "function" && define['amd'])
 {
