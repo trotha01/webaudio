@@ -4,11 +4,6 @@ port module Oscillator exposing (..)
 
 
 type alias Model =
-    { settings : OscillatorSettings
-    }
-
-
-type alias OscillatorSettings =
     { frequency : Hertz
     , detune : Int
     , shape : String
@@ -21,11 +16,9 @@ type alias Hertz =
 
 init : Hertz -> Model
 init frequency =
-    { settings =
-        { frequency = frequency
-        , detune = 0
-        , shape = "sine"
-        }
+    { frequency = frequency
+    , detune = 0
+    , shape = "sine"
     }
 
 
@@ -48,7 +41,7 @@ update msg model =
 -- PORTS
 
 
-port playOscillator : OscillatorSettings -> Cmd msg
+port playOscillator : Model -> Cmd msg
 
 
 port logExternalOut : String -> Cmd msg
@@ -56,11 +49,7 @@ port logExternalOut : String -> Cmd msg
 
 play : Model -> Cmd msg
 play oscillator =
-    let
-        _ =
-            Debug.log "Play Now" ()
-    in
-        playOscillator oscillator.settings
+    playOscillator oscillator
 
 
 

@@ -9537,9 +9537,7 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 	});
 
 var _user$project$Oscillator$init = function (frequency) {
-	return {
-		settings: {frequency: frequency, detune: 0, shape: 'sine'}
-	};
+	return {frequency: frequency, detune: 0, shape: 'sine'};
 };
 var _user$project$Oscillator$playOscillator = _elm_lang$core$Native_Platform.outgoingPort(
 	'playOscillator',
@@ -9547,15 +9545,11 @@ var _user$project$Oscillator$playOscillator = _elm_lang$core$Native_Platform.out
 		return {frequency: v.frequency, detune: v.detune, shape: v.shape};
 	});
 var _user$project$Oscillator$play = function (oscillator) {
-	var _p0 = A2(
-		_elm_lang$core$Debug$log,
-		'Play Now',
-		{ctor: '_Tuple0'});
-	return _user$project$Oscillator$playOscillator(oscillator.settings);
+	return _user$project$Oscillator$playOscillator(oscillator);
 };
 var _user$project$Oscillator$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
+		var _p0 = msg;
 		return {
 			ctor: '_Tuple2',
 			_0: model,
@@ -9573,10 +9567,7 @@ var _user$project$Oscillator$soundData = _elm_lang$core$Native_Platform.incoming
 var _user$project$Oscillator$subscriptions = function (f) {
 	return _user$project$Oscillator$soundData(f);
 };
-var _user$project$Oscillator$Model = function (a) {
-	return {settings: a};
-};
-var _user$project$Oscillator$OscillatorSettings = F3(
+var _user$project$Oscillator$Model = F3(
 	function (a, b, c) {
 		return {frequency: a, detune: b, shape: c};
 	});
