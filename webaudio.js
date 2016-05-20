@@ -44,7 +44,8 @@ var playFrequency = function(oscillator, gainVal) {
   }, 1000);
 }
 
-app.ports.playOscillator.subscribe(function(settings) {
+app.ports.playOscillator.subscribe(function(id, settings) {
+  console.log("here");
   // create oscillator
   var oscillator = audioCtx.createOscillator();
   oscillator.connect(audioCtx.destination);

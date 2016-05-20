@@ -10,14 +10,14 @@ import Color exposing (blue)
 -- import Ports
 
 import Element exposing (Element, toHtml)
-import WebAudio exposing (..)
+import Oscillator exposing (..)
 
 
 -- MODEL
 
 
 type alias Model =
-    { oscillators : List (WebAudio.OscillatorNode Msg)
+    { oscillators : List Oscillator
     , soundData : List Int
     }
 
@@ -29,6 +29,12 @@ model =
     }
 
 
+type alias Oscillator =
+    { id : Int
+    , model : Oscillator.Model
+    }
+
+
 
 -- UPDATE
 
@@ -36,20 +42,28 @@ model =
 type Msg
     = PlaySound
     | SoundData (List Int)
+    | SubMsg Oscillator.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         oscillator =
-            newOscillator 440
+            Oscillator.init 440
     in
         case msg of
             PlaySound ->
-                ( model, WebAudio.play oscillator )
+                let
+                    ( newOscillator, msg ) =
+                        Oscillator.update Oscillator.Play oscillator
+                in
+                    ( model, Cmd.map SubMsg msg )
 
             SoundData data ->
                 ( { model | soundData = model.soundData ++ data }, Cmd.none )
+
+            SubMsg msg ->
+                ( model, Cmd.none )
 
 
 
@@ -113,7 +127,12 @@ point x y =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch (List.map (\o -> o.soundData SoundData) model.oscillators)
+    Sub.batch (List.map subHelp model.oscillators)
+
+
+subHelp : Oscillator -> Sub Msg
+subHelp { id, model } =
+    Oscillator.subscriptions (\data -> SoundData data)
 
 
 

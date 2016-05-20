@@ -9498,36 +9498,51 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				f,
 				_elm_lang$core$Native_List.range(0, m - 1)));
 	});
-var _user$project$WebAudio$playOscillator = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$project$Oscillator$init = function (frequency) {
+	return {
+		settings: {frequency: frequency, detune: 0, shape: 'sine'}
+	};
+};
+var _user$project$Oscillator$playOscillator = _elm_lang$core$Native_Platform.outgoingPort(
 	'playOscillator',
 	function (v) {
 		return {frequency: v.frequency, detune: v.detune, shape: v.shape};
 	});
-var _user$project$WebAudio$play = function (oscillator) {
-	return _user$project$WebAudio$playOscillator(oscillator.settings);
+var _user$project$Oscillator$play = function (oscillator) {
+	var _p0 = A2(
+		_elm_lang$core$Debug$log,
+		'Play Now',
+		{ctor: '_Tuple0'});
+	return _user$project$Oscillator$playOscillator(oscillator.settings);
 };
-var _user$project$WebAudio$soundData = _elm_lang$core$Native_Platform.incomingPort(
-	'soundData',
-	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int));
-var _user$project$WebAudio$newOscillator = function (frequency) {
-	return {
-		settings: {frequency: frequency, detune: 0, shape: 'sine'},
-		soundData: _user$project$WebAudio$soundData
-	};
-};
-var _user$project$WebAudio$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$project$Oscillator$update = F2(
+	function (msg, model) {
+		var _p1 = msg;
+		return {
+			ctor: '_Tuple2',
+			_0: model,
+			_1: _user$project$Oscillator$play(model)
+		};
+	});
+var _user$project$Oscillator$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
 	'logExternalOut',
 	function (v) {
 		return v;
 	});
-var _user$project$WebAudio$OscillatorNode = F2(
-	function (a, b) {
-		return {settings: a, soundData: b};
-	});
-var _user$project$WebAudio$OscillatorSettings = F3(
+var _user$project$Oscillator$soundData = _elm_lang$core$Native_Platform.incomingPort(
+	'soundData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int));
+var _user$project$Oscillator$subscriptions = function (f) {
+	return _user$project$Oscillator$soundData(f);
+};
+var _user$project$Oscillator$Model = function (a) {
+	return {settings: a};
+};
+var _user$project$Oscillator$OscillatorSettings = F3(
 	function (a, b, c) {
 		return {frequency: a, detune: b, shape: c};
 	});
+var _user$project$Oscillator$Play = {ctor: 'Play'};
 var _user$project$Visualizer$graphHeight = 500;
 var _user$project$Visualizer$graphWidth = 500;
 var _user$project$Visualizer$halfGraphWidth = _user$project$Visualizer$graphWidth / 2;
@@ -9565,28 +9580,6 @@ var _user$project$Visualizer$graph = function (model) {
 					A2(_elm_lang$core$List$indexedMap, _user$project$Visualizer$point, model)))
 			]));
 };
-var _user$project$Visualizer$update = F2(
-	function (msg, model) {
-		var oscillator = _user$project$WebAudio$newOscillator(440);
-		var _p0 = msg;
-		if (_p0.ctor === 'PlaySound') {
-			return {
-				ctor: '_Tuple2',
-				_0: model,
-				_1: _user$project$WebAudio$play(oscillator)
-			};
-		} else {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						soundData: A2(_elm_lang$core$Basics_ops['++'], model.soundData, _p0._0)
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		}
-	});
 var _user$project$Visualizer$model = {
 	oscillators: _elm_lang$core$Native_List.fromArray(
 		[]),
@@ -9597,17 +9590,54 @@ var _user$project$Visualizer$Model = F2(
 	function (a, b) {
 		return {oscillators: a, soundData: b};
 	});
+var _user$project$Visualizer$Oscillator = F2(
+	function (a, b) {
+		return {id: a, model: b};
+	});
+var _user$project$Visualizer$SubMsg = function (a) {
+	return {ctor: 'SubMsg', _0: a};
+};
+var _user$project$Visualizer$update = F2(
+	function (msg, model) {
+		var oscillator = _user$project$Oscillator$init(440);
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'PlaySound':
+				var _p1 = A2(_user$project$Oscillator$update, _user$project$Oscillator$Play, oscillator);
+				var newOscillator = _p1._0;
+				var msg = _p1._1;
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Visualizer$SubMsg, msg)
+				};
+			case 'SoundData':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							soundData: A2(_elm_lang$core$Basics_ops['++'], model.soundData, _p0._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
 var _user$project$Visualizer$SoundData = function (a) {
 	return {ctor: 'SoundData', _0: a};
 };
+var _user$project$Visualizer$subHelp = function (_p2) {
+	var _p3 = _p2;
+	return _user$project$Oscillator$subscriptions(
+		function (data) {
+			return _user$project$Visualizer$SoundData(data);
+		});
+};
 var _user$project$Visualizer$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$batch(
-		A2(
-			_elm_lang$core$List$map,
-			function (o) {
-				return o.soundData(_user$project$Visualizer$SoundData);
-			},
-			model.oscillators));
+		A2(_elm_lang$core$List$map, _user$project$Visualizer$subHelp, model.oscillators));
 };
 var _user$project$Visualizer$PlaySound = {ctor: 'PlaySound'};
 var _user$project$Visualizer$playButton = A2(
