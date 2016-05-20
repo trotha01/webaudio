@@ -22,16 +22,16 @@ type alias Model =
     }
 
 
+type alias Oscillator =
+    { id : Int
+    , model : Oscillator.Model
+    }
+
+
 model : Model
 model =
     { oscillators = []
     , soundData = []
-    }
-
-
-type alias Oscillator =
-    { id : Int
-    , model : Oscillator.Model
     }
 
 
@@ -136,7 +136,6 @@ subHelp { id, model } =
 
 
 
--- [ WebAudio.soundData SoundData ]
 -- MAIN
 
 
